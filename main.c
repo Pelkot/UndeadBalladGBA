@@ -1,10 +1,11 @@
 #include "gba.h"
 #include "textures.h"
 #include "audioVideo.c"
+#include "gameplay.c"
 
 u16 frameCounter=1;//for frames per second / rng
 u8 gameState=0; // title screen=0, game=1, end screen=2
-u8 playState=0; // selecting level=0, fighting=1, shop/level up=2
+u8 playState=0; // character creation=0, selecting level=1, fighting=2, shop/level up=3
 u16 endScreenTimer=0;
 
 void buttons()//buttons to press
@@ -19,15 +20,6 @@ void buttons()//buttons to press
  if(KEY_RS){ } 
  if(KEY_ST){ } 
  if(KEY_SL){ } 
-}
-
-void gameUpdates()
-{
-}
-
-void init()
-{
-  
 }
 
 int main()
@@ -53,18 +45,24 @@ int main()
     if(gameState==0)  //title screen
     {  
       playSoundMusic(0,1); //play title song
-      // drawImage(120,80, 0,0, title_Map, 0); //draw title screen
-      if(KEY_STATE != 0x03FF){ init(); gameState=1;} //any button pressed
+      drawImage(120,80, 0,0, mainMenu_Map, 0); //draw title screen
+      if(KEY_ST) // Press start to play
+      { 
+        init(); 
+        gameState=1;
+        playState=2; // for testing, start directly in a fight
+      }
     } 
 
-    if(gameState==1)
+    else if(gameState==1)
     {
-      playSoundMusic(1,1);
-      buttons();
-      gameUpdates();
+      if (playState==0) {characterCreation();}
+      else if (playState==1){selectLevel();}
+      else if (playState==2){fight();}
+      else if (playState==3){shopLevelUp();}
     } 
 
-    if(gameState==2)
+    else if(gameState==2) // you died screen
     { 
       playSoundMusic(2,0); //play end song once
     }  	
