@@ -8,6 +8,7 @@
 // characters
 
 // Items
+#include "textures/broadSword.c"
 
 // Icons
 
