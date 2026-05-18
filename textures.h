@@ -10,6 +10,10 @@
 // Items
 #include "textures/broadSword.c"
 #include "textures/healthPotion.c"
+#include "textures/firebomb.c"
+#include "textures/fireGrease.c"
+#include "textures/shield.c"
+#include "textures/bow.c"
 
 // Icons
 
