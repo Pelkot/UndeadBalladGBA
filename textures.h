@@ -9,6 +9,7 @@
 
 // Items
 #include "textures/broadSword.c"
+#include "textures/healthPotion.c"
 
 // Icons
 

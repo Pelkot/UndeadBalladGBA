@@ -4,7 +4,7 @@
 // data structures
 typedef struct {
     unsigned char* data;
-    node* next;
+    unsigned char* next;
 } node;
 
 typedef struct {
