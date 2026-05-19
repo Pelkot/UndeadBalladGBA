@@ -4,8 +4,8 @@
 #include "gameplay.c"
 
 u16 frameCounter=1;//for frames per second / rng
-u8 gameState=0; // title screen=0, game=1, end screen=2
-u8 playState=0; // character creation=0, selecting level=1, fighting=2, shop/level up=3
+u8 gameState=1; // title screen=0, game=1, end screen=2
+u8 playState=2; // character creation=0, selecting level=1, fighting=2, shop/level up=3
 u16 endScreenTimer=0;
 
 void buttons()//buttons to press

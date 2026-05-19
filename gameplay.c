@@ -2,6 +2,7 @@
 #include "textures.h"
 #include "structs.h"
 
+// Player Stats
 u8 playerHealth;
 u8 maxPlayerHealth;
 
@@ -10,10 +11,17 @@ u8 playerStrength;
 u8 playerStamina;
 u8 maxPlayerStamina;
 
+// Inventory
 item* inventory[14]; // slots 0-3 are permanent items, 4-13 are consumables
 
 u8 inventoryYs[14] = {3, 3, 11, 11, 22, 22, 30, 30, 38, 38, 46, 46, 54, 54}; // y positions for inventory items
 item allItems[256]; // all items in the game, indexed by item id
+
+// Menus
+u8 inInventory = 1; // whether the player is in inventory or selecting a move
+u8 selected = 0; // which inventory slot is currently selected
+u8 selectorTimeout = 0; // for controlling how fast the selector moves when holding a button
+const u8 selectorSpeed = 2; // how many frames to wait before allowing the selector to move again when holding a button
 
 void makeItems() // create all the items in the game and store them in allItems array for easy access when adding to inventory or shops
 {
@@ -58,7 +66,7 @@ void init()
 
   inventory[4] = &allItems[0]; // give player health potion at start
   inventory[5] = &allItems[48]; // give player fire bomb at start
-  inventory[6] = &allItems[16]; // give player fire grease at start
+  inventory[9] = &allItems[16]; // give player fire grease at start
 
 }
 
@@ -70,13 +78,56 @@ void drawInventory()
     {
       if (i % 2 == 0) // left column
       {
-        drawImage(8, 8, 1, inventoryYs[i], inventory[i]->bitmap, 0);
+        drawImage(8, 6, 1, inventoryYs[i], inventory[i]->bitmap, 0);
       }
       else // right column
       {
-        drawImage(8, 8, 10, inventoryYs[i], inventory[i]->bitmap, 0);
+        drawImage(8, 6, 10, inventoryYs[i], inventory[i]->bitmap, 0);
       }
     }
+  }
+}
+
+void displaySelector()
+{
+  if (inInventory)
+  {
+    if (selected % 2 == 0) // left column
+    {
+      drawImage(8, 8, 0, inventoryYs[selected]-1, invSelector_Map, 0);
+    }
+    else // right column
+    {
+      drawImage(8, 8, 9, inventoryYs[selected]-1, invSelector_Map, 0);
+    }
+  }
+}
+
+void inventoryControls()
+{
+  if (selectorTimeout <= 0)
+  {
+    if(KEY_U && selected > 1){selected-=2; selectorTimeout=selectorSpeed;} // move selector up
+    if(KEY_D && selected < 12){selected+=2; selectorTimeout=selectorSpeed;} // move selector down
+    if(KEY_L && selected % 2 == 1){selected-=1; selectorTimeout=selectorSpeed;} // move selector left
+    if(KEY_R && selected % 2 == 0){selected+=1; selectorTimeout=selectorSpeed;} // move selector right
+    if(KEY_B){inInventory=0; selectorTimeout=selectorSpeed;} // switch to move selection
+  }
+  else
+  {
+    selectorTimeout--;
+  }
+}
+
+void fightControls()
+{
+  if (selectorTimeout <= 0)
+  {
+    if(KEY_B){inInventory=1; selectorTimeout=selectorSpeed;} // switch to inventory selection
+  }
+  else
+  {
+    selectorTimeout--;
   }
 }
 
@@ -92,6 +143,15 @@ void fight()
 {
     drawImage(120,80, 0,0, fightBackground_Map, 0); //draw fight background
     drawInventory();
+    if (inInventory)
+    {
+      displaySelector();
+      inventoryControls();
+    }
+    else
+    {
+      fightControls();
+    }
 }
 
 void shopLevelUp()

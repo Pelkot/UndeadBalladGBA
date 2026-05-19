@@ -16,5 +16,6 @@
 #include "textures/bow.c"
 
 // Icons
+#include "textures/invSelector.c"
 
 #endif 
