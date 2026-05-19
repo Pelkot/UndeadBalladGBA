@@ -23,6 +23,8 @@ u8 selected = 0; // which inventory slot is currently selected
 u8 selectorTimeout = 0; // for controlling how fast the selector moves when holding a button
 const u8 selectorSpeed = 2; // how many frames to wait before allowing the selector to move again when holding a button
 
+// Gameplay
+
 void makeItems() // create all the items in the game and store them in allItems array for easy access when adding to inventory or shops
 {
   //              ID, type, message, useType, useAmount, useArea, staminaCost, bitmap
@@ -47,7 +49,7 @@ void makeItems() // create all the items in the game and store them in allItems 
 void init()
 {
   playerHealth=5;
-  maxPlayerHealth=5;
+  maxPlayerHealth=10;
 
   playerStrength=0;
 
@@ -68,6 +70,74 @@ void init()
   inventory[5] = &allItems[48]; // give player fire bomb at start
   inventory[9] = &allItems[16]; // give player fire grease at start
 
+}
+
+void drawHealthStamina()
+{
+  u8 yo=0, xo=17; // change these to change where the healthbars are
+  u8 x = 0, y = 0;
+  u8 hbWidth = (maxPlayerHealth * 3) - 1;
+
+  // health bar
+
+  int screen_y = y + yo;
+
+  // Calculate the VRAM row start address once per row
+  volatile u16* vram_row1 = &VRAM[(screen_y) * GBA_SW+ xo];
+  volatile u16* vram_row2 = &VRAM[(screen_y + 1) * GBA_SW + xo];
+  volatile u16* vram_row3 = &VRAM[(screen_y + 2) * GBA_SW + xo];
+  volatile u16* vram_row4 = &VRAM[(screen_y + 3) * GBA_SW + xo];
+
+  
+  for(x = 0; x < hbWidth; x++) 
+  {               
+      vram_row1[x + 1] = barColors[0];
+      vram_row2[x + 1] = barColors[2];
+      vram_row3[x + 1] = barColors[2];
+      vram_row4[x + 1] = barColors[0];
+  }
+  for (u8 i = 0; i < playerHealth; i++)
+  {
+    u8 off = (i * 3) + 1;
+    vram_row2[off] = barColors[1];
+    vram_row2[off + 1] = barColors[1];
+    vram_row3[off] = barColors[1];
+    vram_row3[off + 1] = barColors[1];
+  }
+  // cap off health bar
+  vram_row2[0] = barColors[0];
+  vram_row3[0] = barColors[0];
+  vram_row2[hbWidth + 1] = barColors[0];
+  vram_row3[hbWidth + 1] = barColors[0];
+
+  u8 sbWidth = (maxPlayerStamina * 3) - 1;
+
+  vram_row1 = &VRAM[(screen_y + 3) * GBA_SW+ xo];
+  vram_row2 = &VRAM[(screen_y + 4) * GBA_SW + xo];
+  vram_row3 = &VRAM[(screen_y + 5) * GBA_SW + xo];
+  vram_row4 = &VRAM[(screen_y + 6) * GBA_SW + xo];
+
+  for(x = 0; x < sbWidth; x++) 
+  {                
+      vram_row1[x + 1] = barColors[0];
+      vram_row2[x + 1] = barColors[4];
+      vram_row3[x + 1] = barColors[4];
+      vram_row4[x + 1] = barColors[0];
+  }
+
+  for (u8 i = 0; i < playerStamina; i++)
+  {
+    u8 off = (i * 3) + 1;
+    vram_row2[off] = barColors[3];
+    vram_row2[off + 1] = barColors[3];
+    vram_row3[off] = barColors[3];
+    vram_row3[off + 1] = barColors[3];
+  }
+  // cap off stamina bar
+  vram_row2[0] = barColors[0];
+  vram_row3[0] = barColors[0];
+  vram_row2[sbWidth + 1] = barColors[0];
+  vram_row3[sbWidth + 1] = barColors[0];
 }
 
 void drawInventory()
@@ -143,6 +213,7 @@ void fight()
 {
     drawImage(120,80, 0,0, fightBackground_Map, 0); //draw fight background
     drawInventory();
+    drawHealthStamina();
     if (inInventory)
     {
       displaySelector();

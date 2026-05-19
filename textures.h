@@ -17,5 +17,6 @@
 
 // Icons
 #include "textures/invSelector.c"
+#include "textures/barColors.c"
 
 #endif 
