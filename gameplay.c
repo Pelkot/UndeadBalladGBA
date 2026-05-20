@@ -79,7 +79,6 @@ void drawHealthStamina()
   u8 hbWidth = (maxPlayerHealth * 3) - 1;
 
   // health bar
-
   int screen_y = y + yo;
 
   // Calculate the VRAM row start address once per row
@@ -88,7 +87,6 @@ void drawHealthStamina()
   volatile u16* vram_row3 = &VRAM[(screen_y + 2) * GBA_SW + xo];
   volatile u16* vram_row4 = &VRAM[(screen_y + 3) * GBA_SW + xo];
 
-  
   for(x = 0; x < hbWidth; x++) 
   {               
       vram_row1[x + 1] = barColors[0];
@@ -110,8 +108,9 @@ void drawHealthStamina()
   vram_row2[hbWidth + 1] = barColors[0];
   vram_row3[hbWidth + 1] = barColors[0];
 
+  // stamina bar
   u8 sbWidth = (maxPlayerStamina * 3) - 1;
-
+  // Calculate the VRAM row start address once per row
   vram_row1 = &VRAM[(screen_y + 3) * GBA_SW+ xo];
   vram_row2 = &VRAM[(screen_y + 4) * GBA_SW + xo];
   vram_row3 = &VRAM[(screen_y + 5) * GBA_SW + xo];

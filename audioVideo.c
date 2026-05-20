@@ -1,4 +1,5 @@
 #include "gba.h"
+#include "textures.h"
 
 extern u16 frameCounter; //for frames per second / rng
 
@@ -20,6 +21,16 @@ u16 notes[] =
  1798,1812, 1825,1837, 1849, 1860,1871, 1881,1890, 1899,1907, 1915,//C5,C5#, D5,D5#, E5, F5,F5#, G5,G5#, A5,A5#, B5
  1923,1930, 1936,1943, 1949, 1954,1959, 1964,1969, 1974,1978, 1982,//C6,C6#, D6,D6#, E6, F6,F6#, G6,G6#, A6,A6#, B6
  1985,1989, 1992,1995, 1998, 2001,2004, 2006,2009, 2011,2013 ,2015,//C7,C7#, D7,D7#, E7, F7,F7#, G7,G7#, A7,A7#, B7
+};
+
+u8 fontWidths[] = // the width, in pixels, of every character in the font spritesheet
+{
+    1, 3, 5, 4, 5, 5, 2, 2, 2, 5, 5, 2, 3, 1, 3, 4,
+    2, 4, 4, 4, 4, 4, 4, 4, 4, 1, 2, 3, 4, 3, 4, 8,
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 4, 4, 5, 4, 5, 4,
+    5, 4, 4, 5, 4, 5, 7, 5, 5, 4, 2, 3, 2, 5, 4, 3,
+    4, 4, 4, 4, 4, 2, 4, 4, 1, 2, 4, 1, 7, 4, 4, 4,
+    4, 3, 4, 2, 4, 4, 5, 5, 4, 4, 3, 1, 3, 4
 };
 
 IN_IWRAM void drawImage(int w,int h, int xo,int yo, const u16* map, int to)
@@ -82,4 +93,9 @@ void playSoundMusic(int s, int loop)
   if(note>0){ PlayNote(notes[note],64);}
   M[s].tic+=1; if(M[s].tic>M[s].size){ M[s].tic=0; if(loop==0){ M[s].onOff=0;}}
  }
+}
+
+void drawText(char* text)
+{
+
 }

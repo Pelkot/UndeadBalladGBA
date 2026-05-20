@@ -1,6 +1,8 @@
 #ifndef TEXTURES_H
 #define TEXTURES_H
 
+#include "textures/font.c"
+
 // backgrounds
 #include "textures/mainMenu.c"
 #include "textures/fightBackground.c"
