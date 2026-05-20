@@ -29,20 +29,20 @@ void makeItems() // create all the items in the game and store them in allItems 
 {
   //              ID, type, message, useType, useAmount, useArea, staminaCost, bitmap
   // heal items (1-15)
-  allItems[0] = (item){.id = 0, .type = 0, .message = "Health Potion\n+30 Health", .useType = 0, .useAmount = 5, .useArea = 0, .staminaCost = 0, .bitmap = healthPotion_Map};
+  allItems[0] = (item){.id = 0, .type = 0, .message = "Health Potion\n+5 Health\0", .useType = 0, .useAmount = 5, .useArea = 0, .staminaCost = 0, .bitmap = healthPotion_Map};
 
   // boost items (16-31)
-  allItems[16] = (item){.id = 16, .type = 0, .message = "Fire Grease\n+2 Attack", .useType = 1, .useAmount = 2, .useArea = 0, .staminaCost = 0, .bitmap = fireGrease_Map};
+  allItems[16] = (item){.id = 16, .type = 0, .message = "Fire Grease\n+2 Attack\0", .useType = 1, .useAmount = 2, .useArea = 0, .staminaCost = 0, .bitmap = fireGrease_Map};
 
   // melee items (32-47)
-  allItems[32] = (item){.id = 32, .type = 0, .message = "Broad Sword\n2 Melee Dmg", .useType = 2, .useAmount = 2, .useArea = 2, .staminaCost = 2, .bitmap = broadSword_Map};
+  allItems[32] = (item){.id = 32, .type = 0, .message = "Broad Sword\n2 Melee Dmg\0", .useType = 2, .useAmount = 2, .useArea = 2, .staminaCost = 2, .bitmap = broadSword_Map};
 
   // ranged items (48-63)
-  allItems[48] = (item){.id = 48, .type = 1, .message = "Fire Bomb\n3 Ranged Dmg", .useType = 3, .useAmount = 3, .useArea = 2, .staminaCost = 1, .bitmap = firebomb_Map};
-  allItems[49] = (item){.id = 49, .type = 1, .message = "Bow\n2 Ranged Dmg", .useType = 3, .useAmount = 1, .useArea = 2, .staminaCost = 2, .bitmap = bow_Map};  
+  allItems[48] = (item){.id = 48, .type = 1, .message = "Fire Bomb\n3 Ranged Dmg\0", .useType = 3, .useAmount = 3, .useArea = 2, .staminaCost = 1, .bitmap = firebomb_Map};
+  allItems[49] = (item){.id = 49, .type = 1, .message = "Bow\n2 Ranged Dmg\0", .useType = 3, .useAmount = 1, .useArea = 2, .staminaCost = 2, .bitmap = bow_Map};  
 
   // defense items (64-79)
-  allItems[64] = (item){.id = 64, .type = 1, .message = "Shield\n+2 Defense", .useType = 4, .useAmount = 2, .useArea = 0, .staminaCost = 1, .bitmap = shield_Map};
+  allItems[64] = (item){.id = 64, .type = 1, .message = "Shield\n+2 Defense\0", .useType = 4, .useAmount = 2, .useArea = 0, .staminaCost = 1, .bitmap = shield_Map};
 }
 
 
@@ -217,6 +217,10 @@ void fight()
     {
       displaySelector();
       inventoryControls();
+      if (inventory[selected] != 0)
+      {
+        drawText(2, 64, inventory[selected]->message);
+      }
     }
     else
     {

@@ -95,7 +95,18 @@ void playSoundMusic(int s, int loop)
  }
 }
 
-void drawText(char* text)
+void drawText(u8 x, u8 y, char* text)
 {
-
+    u8 startx = x;
+    u16 i = 0;
+    char c = text[i];
+    
+    while(c != '\0')
+    {
+        if(c == '\n') {x=startx; y+=8;}
+        else if(c == ' ') {x +=8;}
+        else {drawImage(8,7,x,y,font_Map,c-33); x += fontWidths[c-33] + 1;}
+        i++;
+        c = text[i];
+    }
 }
