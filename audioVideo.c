@@ -104,7 +104,7 @@ void drawText(u8 x, u8 y, char* text)
     while(c != '\0')
     {
         if(c == '\n') {x=startx; y+=8;}
-        else if(c == ' ') {x +=8;}
+        else if(c == ' ') {x +=3;}
         else {drawImage(8,7,x,y,font_Map,c-33); x += fontWidths[c-33] + 1;}
         i++;
         c = text[i];
