@@ -11,6 +11,8 @@ u8 playerStrength;
 u8 playerStamina;
 u8 maxPlayerStamina;
 
+u8 playerLocation;
+
 // Inventory
 item* inventory[14]; // slots 0-3 are permanent items, 4-13 are consumables
 
@@ -24,6 +26,8 @@ u8 selectorTimeout = 0; // for controlling how fast the selector moves when hold
 const u8 selectorSpeed = 2; // how many frames to wait before allowing the selector to move again when holding a button
 
 // Gameplay
+enemy tiles[7];
+
 
 void makeItems() // create all the items in the game and store them in allItems array for easy access when adding to inventory or shops
 {
@@ -56,6 +60,8 @@ void init()
   playerStamina=5;
   maxPlayerStamina=5;
 
+  playerLocation=4;
+
   for (int i = 0; i < 14; i++)
   {
     inventory[i] = 0; // initialize inventory to empty
@@ -70,6 +76,8 @@ void init()
   inventory[5] = &allItems[48]; // give player fire bomb at start
   inventory[9] = &allItems[16]; // give player fire grease at start
 
+  tiles[0] = (enemy){.attack=2, .health=5, .maxHealth=5};
+  tiles[6] = (enemy){.attack=2, .health=5, .maxHealth=5};
 }
 
 void drawHealthStamina()

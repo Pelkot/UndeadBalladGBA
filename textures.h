@@ -8,6 +8,8 @@
 #include "textures/fightBackground.c"
 
 // characters
+#include "textures/solaire.c"
+#include "textures/skeleton.c"
 
 // Items
 #include "textures/broadSword.c"
