@@ -31,6 +31,8 @@ typedef struct {
     short health;
     short maxHealth;
     short attack;
+    
+    unsigned const short* bitmap;
 } enemy;
 
 #endif

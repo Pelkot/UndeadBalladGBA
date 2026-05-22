@@ -4,23 +4,24 @@
 #include "textures/font.c"
 
 // backgrounds
-#include "textures/mainMenu.c"
-#include "textures/fightBackground.c"
+#include "textures/backgrounds/mainMenu.c"
+#include "textures/backgrounds/fightBackground.c"
 
 // characters
-#include "textures/solaire.c"
-#include "textures/skeleton.c"
+#include "textures/characters/solaire.c"
+#include "textures/characters/skeleton.c"
 
 // Items
-#include "textures/broadSword.c"
-#include "textures/healthPotion.c"
-#include "textures/firebomb.c"
-#include "textures/fireGrease.c"
-#include "textures/shield.c"
-#include "textures/bow.c"
+#include "textures/items/broadSword.c"
+#include "textures/items/healthPotion.c"
+#include "textures/items/firebomb.c"
+#include "textures/items/fireGrease.c"
+#include "textures/items/shield.c"
+#include "textures/items/bow.c"
 
 // Icons
 #include "textures/invSelector.c"
 #include "textures/barColors.c"
 
 #endif 
+ 
