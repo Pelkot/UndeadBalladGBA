@@ -110,3 +110,17 @@ void drawText(u8 x, u8 y, char* text)
         c = text[i];
     }
 }
+
+void drawTiles()
+{
+    u8 x = 19,y = 51;
+    volatile u16* vram_row = &VRAM[(y) * GBA_SW + x];
+
+    for (u8 i = 0; i < 98; i++)
+    {
+        if (i%14!=0)
+        {
+            vram_row[i] = barColors[1];
+        }
+    }
+}

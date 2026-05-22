@@ -185,10 +185,10 @@ void inventoryControls()
   if (selectorTimeout <= 0)
   {
     if(KEY_U && selected > 1){selected-=2; selectorTimeout=selectorSpeed;} // move selector up
-    if(KEY_D && selected < 12){selected+=2; selectorTimeout=selectorSpeed;} // move selector down
-    if(KEY_L && selected % 2 == 1){selected-=1; selectorTimeout=selectorSpeed;} // move selector left
-    if(KEY_R && selected % 2 == 0){selected+=1; selectorTimeout=selectorSpeed;} // move selector right
-    if(KEY_B){inInventory=0; selectorTimeout=selectorSpeed;} // switch to move selection
+    else if(KEY_D && selected < 12){selected+=2; selectorTimeout=selectorSpeed;} // move selector down
+    else if(KEY_L && selected % 2 == 1){selected-=1; selectorTimeout=selectorSpeed;} // move selector left
+    else if(KEY_R && selected % 2 == 0){selected+=1; selectorTimeout=selectorSpeed;} // move selector right
+    else if(KEY_B){inInventory=0; selectorTimeout=selectorSpeed;} // switch to move selection
   }
   else
   {
@@ -221,6 +221,7 @@ void fight()
     drawImage(120,80, 0,0, fightBackground_Map, 0); //draw fight background
     drawInventory();
     drawHealthStamina();
+    drawTiles();
     if (inInventory)
     {
       displaySelector();
