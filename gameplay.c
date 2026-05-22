@@ -85,10 +85,10 @@ void init()
   {
     tiles[i] = 0;
   }
-  enemy1 = (enemy){.attack=2, .health=5, .maxHealth=5, .bitmap=skeleton_Map};
+  enemy1 = (enemy){.attack=2, .health=5, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=0};
   tiles[0] = &enemy1;
   
-  enemy2 = (enemy){.attack=2, .health=5, .maxHealth=5, .bitmap=skeleton_Map};
+  enemy2 = (enemy){.attack=2, .health=5, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=1};
   tiles[6] = &enemy2;
 }
 
@@ -167,11 +167,11 @@ void drawInventory()
     {
       if (i % 2 == 0) // left column
       {
-        drawImage(8, 6, 1, inventoryYs[i], inventory[i]->bitmap, 0);
+        drawImage(8, 6, 1, inventoryYs[i], inventory[i]->bitmap, 0,0);
       }
       else // right column
       {
-        drawImage(8, 6, 10, inventoryYs[i], inventory[i]->bitmap, 0);
+        drawImage(8, 6, 10, inventoryYs[i], inventory[i]->bitmap, 0,0);
       }
     }
   }
@@ -183,11 +183,11 @@ void displaySelector()
   {
     if (selected % 2 == 0) // left column
     {
-      drawImage(8, 8, 0, inventoryYs[selected]-1, invSelector_Map, 0);
+      drawImage(8, 8, 0, inventoryYs[selected]-1, invSelector_Map, 0,0);
     }
     else // right column
     {
-      drawImage(8, 8, 9, inventoryYs[selected]-1, invSelector_Map, 0);
+      drawImage(8, 8, 9, inventoryYs[selected]-1, invSelector_Map, 0,0);
     }
   }
 }
@@ -226,7 +226,15 @@ void drawEnemies()
   {
     if (tiles[i] != 0) // there is an enemy on current tile
     {
-        drawImage(16, 16, tileXs[i], 35, tiles[i]->bitmap, 0); 
+      if (tiles[i]->facingLeft == 0)
+      {
+        drawImage(16, 16, tileXs[i], 35, tiles[i]->bitmap, 0 ,0); 
+      }
+      else 
+      {
+        drawImage(16, 16, tileXs[i]-6, 35, tiles[i]->bitmap, 0 ,1);
+      }
+        
     }
   }
 }
@@ -241,11 +249,11 @@ void selectLevel()
 
 void fight()
 {
-    drawImage(120,80, 0,0, fightBackground_Map, 0); //draw fight background
+    drawImage(120,80, 0,0, fightBackground_Map, 0,0); //draw fight background
     drawInventory();
     drawHealthStamina();
     drawTiles();
-    drawImage(16,16, tileXs[playerLocation], 35, solaire_Map,0); //player
+    drawImage(16,16, tileXs[playerLocation], 35, solaire_Map,0,0); //player
     drawEnemies(); 
 
     if (inInventory)

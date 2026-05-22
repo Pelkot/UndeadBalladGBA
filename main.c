@@ -45,7 +45,7 @@ int main()
     if(gameState==0)  //title screen
     {  
       playSoundMusic(0,1); //play title song
-      drawImage(120,80, 0,0, mainMenu_Map, 0); //draw title screen
+      drawImage(120,80, 0,0, mainMenu_Map, 0,0); //draw title screen
       if(KEY_ST) // Press start to play
       { 
         init(); 

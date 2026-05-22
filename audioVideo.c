@@ -33,34 +33,64 @@ u8 fontWidths[] = // the width, in pixels, of every character in the font sprite
     4, 3, 4, 2, 4, 4, 5, 5, 4, 4, 3, 1, 3, 4
 };
 
-IN_IWRAM void drawImage(int w,int h, int xo,int yo, const u16* map, int to)
+IN_IWRAM void drawImage(int w,int h, int xo,int yo, const u16* map, int to, u8 flipped)
 {
   int x, y;
-  if (yo >= SH || xo >= SW || xo + w <= 0 || yo + h <= 0) return;
+  if (yo >= SH || xo >= SW || xo + w <= 0 || yo + h <= 0) return; //image is completely off screen
 
-  for(y = 0; y < h; y++) 
-  {                
-      int screen_y = y + yo;
-      // Skip rows that are outside the visible game screen bounds
-      if (screen_y < 0 || screen_y >= SH) continue;
+  if (flipped==0)
+  {
+    for(y = 0; y < h; y++) 
+    {                
+        int screen_y = y + yo;
+        // Skip rows that are outside the visible game screen bounds
+        if (screen_y < 0 || screen_y >= SH) continue;
 
-      // Calculate the VRAM row start address once per row
-      volatile u16* vram_row = &VRAM[screen_y * GBA_SW + xo];
-      const u16* map_row = &map[(y + to * h) * w];
+        // Calculate the VRAM row start address once per row
+        volatile u16* vram_row = &VRAM[screen_y * GBA_SW + xo];
+        const u16* map_row = &map[(y + to * h) * w];
 
-      for(x = 0; x < w; x++)
-      { 
-          int screen_x = x + xo;
-          if (screen_x >= 0 && screen_x < SW) // Ensure we stay in game screen width
-          {
-              u16 c = map_row[x]; 
-              if(c > 0) // Transparency check
-              { 
-                  vram_row[x] = c;
-              }
-          }
-      }  
+        for(x = 0; x < w; x++)
+        { 
+            int screen_x = x + xo;
+            if (screen_x >= 0 && screen_x < SW) // Ensure we stay in game screen width
+            {
+                u16 c = map_row[x]; 
+                if(c > 0) // Transparency check
+                { 
+                    vram_row[x] = c; // draw not flipped
+                }
+            }
+        }  
+    }
   }
+  else
+  {
+    for(y = 0; y < h; y++) 
+    {                
+        int screen_y = y + yo;
+        // Skip rows that are outside the visible game screen bounds
+        if (screen_y < 0 || screen_y >= SH) continue;
+
+        // Calculate the VRAM row start address once per row
+        volatile u16* vram_row = &VRAM[screen_y * GBA_SW + xo];
+        const u16* map_row = &map[(y + to * h) * w];
+
+        for(x = 0; x < w; x++)
+        { 
+            int screen_x = x + xo;
+            if (screen_x >= 0 && screen_x < SW) // Ensure we stay in game screen width
+            {
+                u16 c = map_row[x]; 
+                if(c > 0) // Transparency check
+                { 
+                    vram_row[w-x] = c; //draw flipped
+                }
+            }
+        }  
+    }
+  }
+  
 }
 
 void PlayNote( u16 frequency, unsigned char length ){
@@ -105,7 +135,7 @@ void drawText(u8 x, u8 y, char* text)
     {
         if(c == '\n') {x=startx; y+=8;}
         else if(c == ' ') {x +=3;}
-        else {drawImage(8,7,x,y,font_Map,c-33); x += fontWidths[c-33] + 1;}
+        else {drawImage(8,7,x,y,font_Map,c-33,0); x += fontWidths[c-33] + 1;}
         i++;
         c = text[i];
     }

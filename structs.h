@@ -14,7 +14,6 @@ typedef struct {
 } queue;
 
 typedef struct{
-    unsigned char id; // item id
     unsigned char type; // 0=permanent, 1=consumable
 
     char* message;
@@ -31,6 +30,7 @@ typedef struct {
     short health;
     short maxHealth;
     short attack;
+    short facingLeft;
     
     unsigned const short* bitmap;
 } enemy;
