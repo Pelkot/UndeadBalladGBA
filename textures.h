@@ -22,6 +22,7 @@
 // Icons
 #include "textures/invSelector.c"
 #include "textures/barColors.c"
+#include "textures/arrowUp.c"
 
 #endif 
  

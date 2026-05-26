@@ -1,17 +1,9 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-// data structures
-typedef struct {
-    unsigned char* data;
-    unsigned char* next;
-} node;
-
-typedef struct {
-    node* front;
-    node* rear;
-
-} queue;
+typedef struct{
+    
+} animation;
 
 typedef struct{
     unsigned char type; // 0=permanent, 1=consumable

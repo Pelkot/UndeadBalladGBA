@@ -28,7 +28,7 @@ int main()
  REG_BG2PA=256/2; //256=normal 128=scale
  REG_BG2PD=256/2; //256=normal 128=scale 
   
- init();                                                             //init game variables
+ init();//init game variables
 
  while(1) 
  { 

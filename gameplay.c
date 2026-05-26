@@ -2,6 +2,9 @@
 #include "textures.h"
 #include "structs.h"
 
+int timeout_timer = 0;
+u8 fightState = 0; //0= inventory, 1= selecting move, 2= waiting/watching
+
 // Player Stats
 u8 playerHealth;
 u8 maxPlayerHealth;
@@ -18,7 +21,6 @@ u8 inventoryYs[14] = {3, 3, 11, 11, 22, 22, 30, 30, 38, 38, 46, 46, 54, 54}; // 
 item allItems[256]; // all items in the game, indexed by item id
 
 // Menus
-u8 inInventory = 1; // whether the player is in inventory or selecting a move
 u8 selected = 0; // which inventory slot is currently selected
 u8 selectorTimeout = 0; // for controlling how fast the selector moves when holding a button
 const u8 selectorSpeed = 2; // how many frames to wait before allowing the selector to move again when holding a button
@@ -226,7 +228,7 @@ void drawInventory()
 
 void displaySelector()
 {
-  if (inInventory)
+  if (fightState==0)
   {
     if (selected % 2 == 0) // left column
     {
@@ -247,7 +249,7 @@ void inventoryControls()
     else if(KEY_D && selected < 12){selected+=2; selectorTimeout=selectorSpeed;} // move selector down
     else if(KEY_L && selected % 2 == 1){selected-=1; selectorTimeout=selectorSpeed;} // move selector left
     else if(KEY_R && selected % 2 == 0){selected+=1; selectorTimeout=selectorSpeed;} // move selector right
-    else if(KEY_B){inInventory=0; selectorTimeout=selectorSpeed;} // switch to move selection
+    else if(KEY_B){fightState=1; selectorTimeout=selectorSpeed;} // switch to move selection
   }
   else
   {
@@ -259,7 +261,7 @@ void fightControls()
 {
   if (selectorTimeout <= 0)
   {
-    if(KEY_B){inInventory=1; selectorTimeout=selectorSpeed;} // switch to inventory selection
+    if(KEY_B){fightState=0; selectorTimeout=selectorSpeed;} // switch to inventory selection
   }
   else
   {
@@ -286,18 +288,26 @@ void fight()
     drawImage(16,16, tileXs[playerLocation], 35, solaire_Map,0,0); //player
     drawEnemies(); 
 
-    if (inInventory)
+    if (timeout_timer == 0)
     {
-      displaySelector();
-      inventoryControls();
-      if (inventory[selected] != 0)
+      if (fightState==0) // player in inventory
       {
-        drawText(2, 64, inventory[selected]->message);
+        displaySelector();
+        inventoryControls();
+        if (inventory[selected] != 0)
+        {
+          drawText(2, 64, inventory[selected]->message);
+        }
+      }
+      else if (fightState==1) // player selecting move
+      {
+        fightControls();
+        drawImage(8,8, tileXs[playerLocation] + 3, 53, arrowUp_Map, 0,0);
       }
     }
     else
     {
-      fightControls();
+      timeout_timer -= 1;
     }
 }
 
