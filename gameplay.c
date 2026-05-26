@@ -85,10 +85,10 @@ void init()
   {
     tiles[i] = 0;
   }
-  enemy1 = (enemy){.attack=2, .health=5, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=0};
+  enemy1 = (enemy){.attack=2, .health=4, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=0};
   tiles[0] = &enemy1;
   
-  enemy2 = (enemy){.attack=2, .health=5, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=1};
+  enemy2 = (enemy){.attack=2, .health=3, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=1};
   tiles[6] = &enemy2;
 }
 
@@ -159,6 +159,53 @@ void drawHealthStamina()
   vram_row3[sbWidth + 1] = barColors[0];
 }
 
+void drawEnemyHealth(u8 xo, u8 yo, u8 maxHealth, u8 health)
+{
+  u8 x = 0, y = 0; // used for moving around the screen
+  u8 markers = (health * 11 + maxHealth - 1) / maxHealth;
+  if (markers == 11 && health != maxHealth) markers = 10;
+  int screen_y = y + yo;
+
+  // Calculate the VRAM row start address once per row
+  volatile u16* vram_row1 = &VRAM[(screen_y) * GBA_SW+ xo];
+  volatile u16* vram_row2 = &VRAM[(screen_y + 1) * GBA_SW + xo];
+  volatile u16* vram_row3 = &VRAM[(screen_y + 2) * GBA_SW + xo];
+
+  for(x = 0; x < 11; x++) 
+  {               
+      vram_row1[x + 1] = barColors[0];
+      vram_row2[x + 1] = barColors[2];
+      vram_row3[x + 1] = barColors[0];
+  }
+  for (u8 i = 0; i < markers; i++)
+  {
+    u8 off = (i) + 1;
+    vram_row2[off] = barColors[1];
+  }
+  // cap off health bar
+  vram_row2[0] = barColors[0];
+  vram_row2[12] = barColors[0];
+}
+
+void drawEnemies()
+{
+  for (u8 i = 0; i<7; i++)
+  {
+    if (tiles[i] != 0) // there is an enemy on current tile
+    {
+      if (tiles[i]->facingLeft == 0)
+      {
+        drawImage(16, 16, tileXs[i], 35, tiles[i]->bitmap, 0 ,0); 
+      }
+      else 
+      {
+        drawImage(16, 16, tileXs[i]-6, 35, tiles[i]->bitmap, 0 ,1);
+      }
+      drawEnemyHealth(tileXs[i]-1, 32, tiles[i]->maxHealth, tiles[i]->health);
+    }
+  }
+}
+
 void drawInventory()
 {
   for (int i = 0; i < 14; i++)
@@ -220,24 +267,7 @@ void fightControls()
   }
 }
 
-void drawEnemies()
-{
-  for (u8 i = 0; i<7; i++)
-  {
-    if (tiles[i] != 0) // there is an enemy on current tile
-    {
-      if (tiles[i]->facingLeft == 0)
-      {
-        drawImage(16, 16, tileXs[i], 35, tiles[i]->bitmap, 0 ,0); 
-      }
-      else 
-      {
-        drawImage(16, 16, tileXs[i]-6, 35, tiles[i]->bitmap, 0 ,1);
-      }
-        
-    }
-  }
-}
+
 
 void characterCreation()
 {
