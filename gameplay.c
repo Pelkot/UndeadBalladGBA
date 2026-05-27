@@ -24,6 +24,7 @@ item allItems[256]; // all items in the game, indexed by item id
 u8 selected = 0; // which inventory slot is currently selected
 u8 selectorTimeout = 0; // for controlling how fast the selector moves when holding a button
 const u8 selectorSpeed = 2; // how many frames to wait before allowing the selector to move again when holding a button
+char* currText;
 
 // Gameplay
 enemy* tiles[7];
@@ -241,6 +242,12 @@ void displaySelector()
   }
 }
 
+void endTurn()
+{
+  currText = "Waiting...";
+  timeout_timer = 15;
+}
+
 void inventoryControls()
 {
   if (selectorTimeout <= 0)
@@ -262,14 +269,50 @@ void fightControls()
   if (selectorTimeout <= 0)
   {
     if(KEY_B){fightState=0; selectorTimeout=selectorSpeed;} // switch to inventory selection
+
+    else if(KEY_D)
+    {
+        playerStamina = maxPlayerStamina;
+        endTurn();
+    }
+
+    else if(KEY_L && playerLocation >= 1 && playerStamina >= 1)
+    {
+      if (tiles[playerLocation-1] == 0) // tile empty
+      {
+        playerLocation -= 1;
+      }
+      else // tile not empty
+      {
+        tiles[playerLocation] = tiles[playerLocation-1];
+        tiles[playerLocation-1] = 0;
+        playerLocation -= 1;
+      }
+      playerStamina -= 1;
+      endTurn();
+    }
+
+    else if(KEY_R && playerLocation<=5 && playerStamina >= 1)
+    {
+      if (tiles[playerLocation+1] == 0) // tile empty
+      {
+        playerLocation += 1;
+      }
+      else // tile not empty
+      {
+        tiles[playerLocation] = tiles[playerLocation+1];
+        tiles[playerLocation+1] = 0;
+        playerLocation += 1;
+      }
+      playerStamina -= 1;
+      endTurn();
+    }
   }
   else
   {
     selectorTimeout--;
   }
 }
-
-
 
 void characterCreation()
 {
@@ -287,8 +330,9 @@ void fight()
     drawTiles();
     drawImage(16,16, tileXs[playerLocation], 35, solaire_Map,0,0); //player
     drawEnemies(); 
+    drawText(2,64, currText);
 
-    if (timeout_timer == 0)
+    if (timeout_timer <= 0)
     {
       if (fightState==0) // player in inventory
       {
@@ -296,13 +340,14 @@ void fight()
         inventoryControls();
         if (inventory[selected] != 0)
         {
-          drawText(2, 64, inventory[selected]->message);
+          currText = inventory[selected]->message;
         }
       }
       else if (fightState==1) // player selecting move
       {
-        fightControls();
         drawImage(8,8, tileXs[playerLocation] + 3, 53, arrowUp_Map, 0,0);
+        currText = "Make a move...";
+        fightControls();
       }
     }
     else
