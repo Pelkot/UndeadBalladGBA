@@ -34,6 +34,7 @@ enemy enemy3;
 enemy enemy4;
 
 u8 playerLocation;
+u8 playerFacingLeft = 0;
 int tileXs[7] = {21, 35, 49, 63, 77, 91, 105};
 
 
@@ -289,6 +290,7 @@ void fightControls()
         playerLocation -= 1;
       }
       playerStamina -= 1;
+      playerFacingLeft = 1;
       endTurn();
     }
 
@@ -305,6 +307,7 @@ void fightControls()
         playerLocation += 1;
       }
       playerStamina -= 1;
+      playerFacingLeft = 0;
       endTurn();
     }
   }
@@ -328,7 +331,15 @@ void fight()
     drawInventory();
     drawHealthStamina();
     drawTiles();
-    drawImage(16,16, tileXs[playerLocation], 35, solaire_Map,0,0); //player
+    if (playerFacingLeft == 0)
+    {
+      drawImage(16,16, tileXs[playerLocation], 35, solaire_Map,0,0); //player
+    }
+    else
+    {
+      drawImage(16,16, tileXs[playerLocation]-6, 35, solaire_Map,0,1);
+    }
+    
     drawEnemies(); 
     drawText(2,64, currText);
 
