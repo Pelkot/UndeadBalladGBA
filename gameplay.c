@@ -374,8 +374,6 @@ void useDefenceItem()
   endTurn();
 }
 
-
-
 void inventoryControls()
 {
   if (selectorTimeout <= 0)
@@ -387,7 +385,7 @@ void inventoryControls()
     else if(KEY_B){fightState=1; selectorTimeout=selectorSpeed;} // switch to move selection
     else if (KEY_A && inventory[selected] != 0)
     {
-      if (playerStamina > inventory[selected]->staminaCost)
+      if (playerStamina >= inventory[selected]->staminaCost)
       {
         if (inventory[selected]->useType == 0){useHealItem();}
         else if (inventory[selected]->useType == 1){useBoostItem();}
