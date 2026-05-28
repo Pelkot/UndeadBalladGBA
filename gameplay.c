@@ -14,6 +14,9 @@ u8 playerStrength;
 u8 playerStamina;
 u8 maxPlayerStamina;
 
+u8 damageBoost=0;
+u8 defence=0;
+
 // Inventory
 item* inventory[14]; // slots 0-3 are permanent items, 4-13 are consumables
 
@@ -40,12 +43,11 @@ int tileXs[7] = {21, 35, 49, 63, 77, 91, 105};
 
 void makeItems() // create all the items in the game and store them in allItems array for easy access when adding to inventory or shops
 {
-  //              ID, type, message, useType, useAmount, useArea, staminaCost, bitmap
   // heal items (1-15)
-  allItems[0] = (item){.type = 0, .message = "Health Potion\n+5 Health", .useType = 0, .useAmount = 5, .useArea = 0, .staminaCost = 0, .bitmap = healthPotion_Map};
+  allItems[0] = (item){.type = 0, .message = "Health Potion\n+5 Health", .useType = 0, .useAmount = 5, .useArea = 0, .staminaCost = 1, .bitmap = healthPotion_Map};
 
   // boost items (16-31)
-  allItems[16] = (item){.type = 0, .message = "Fire Grease\n+2 Attack", .useType = 1, .useAmount = 2, .useArea = 0, .staminaCost = 0, .bitmap = fireGrease_Map};
+  allItems[16] = (item){.type = 0, .message = "Fire Grease\n+2 Attack", .useType = 1, .useAmount = 2, .useArea = 0, .staminaCost = 1, .bitmap = fireGrease_Map};
 
   // melee items (32-47)
   allItems[32] = (item){.type = 1, .message = "Broad Sword\n2 Melee Dmg", .useType = 2, .useAmount = 2, .useArea = 2, .staminaCost = 2, .bitmap = broadSword_Map};
@@ -251,16 +253,36 @@ void endTurn()
 
 void useHealItem()
 {
-  playerHealth += inventory[selected]->useAmount;
-  if (playerHealth >= maxPlayerHealth) {playerHealth=maxPlayerHealth;}
-  playerStamina -= inventory[selected]->staminaCost;
-  if (inventory[selected]->type==0) {inventory[selected]=0;}
-  endTurn();
+  if (playerStamina > inventory[selected]->staminaCost)
+  {
+    playerHealth += inventory[selected]->useAmount;
+    if (playerHealth >= maxPlayerHealth) {playerHealth=maxPlayerHealth;}
+    playerStamina -= inventory[selected]->staminaCost;
+    if (inventory[selected]->type==0) {inventory[selected]=0;}
+    endTurn();
+  }
+  else
+  {
+    currText = "Not Enough Stamina!";
+    timeout_timer=20;
+  }
 }
 
 void useBoostItem()
 {
-
+  if (playerStamina > inventory[selected]->staminaCost)
+  {
+    damageBoost += inventory[selected]->useAmount;
+    if (playerHealth >= maxPlayerHealth) {playerHealth=maxPlayerHealth;}
+    playerStamina -= inventory[selected]->staminaCost;
+    if (inventory[selected]->type==0) {inventory[selected]=0;}
+    endTurn();
+  }
+  else
+  {
+    currText = "Not Enough Stamina!";
+    timeout_timer=20;
+  }
 }
 
 void usedRangedItem()
@@ -273,9 +295,21 @@ void useMeleeItem()
 
 }
 
-void useDefenseItem()
+void useDefenceItem()
 {
-
+  if (playerStamina > inventory[selected]->staminaCost)
+  {
+    defence += inventory[selected]->useAmount;
+    if (playerHealth >= maxPlayerHealth) {playerHealth=maxPlayerHealth;}
+    playerStamina -= inventory[selected]->staminaCost;
+    if (inventory[selected]->type==0) {inventory[selected]=0;}
+    endTurn();
+  }
+  else
+  {
+    currText = "Not Enough Stamina!";
+    timeout_timer=20;
+  }
 }
 
 
@@ -295,7 +329,7 @@ void inventoryControls()
       else if (inventory[selected]->useType == 1){useBoostItem();}
       else if (inventory[selected]->useType == 2){usedRangedItem();}
       else if (inventory[selected]->useType == 3){useMeleeItem();}
-      else if (inventory[selected]->useType == 4){useDefenseItem();}
+      else if (inventory[selected]->useType == 4){useDefenceItem();}
     }
   }
   else
@@ -387,7 +421,6 @@ void fight()
       if (fightState==0) // player in inventory
       {
         displaySelector();
-        inventoryControls();
         if (inventory[selected] != 0)
         {
           currText = inventory[selected]->message;
@@ -396,6 +429,7 @@ void fight()
         {
           currText = "";
         }
+        inventoryControls();
       }
       else if (fightState==1) // player selecting move
       {
