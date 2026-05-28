@@ -6,7 +6,7 @@ typedef struct{
 } animation;
 
 typedef struct{
-    unsigned char type; // 0=permanent, 1=consumable
+    unsigned char type; // 1=permanent, 0=consumable
 
     char* message;
 
