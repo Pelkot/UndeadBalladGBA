@@ -29,6 +29,9 @@ u8 selectorTimeout = 0; // for controlling how fast the selector moves when hold
 const u8 selectorSpeed = 2; // how many frames to wait before allowing the selector to move again when holding a button
 char* currText;
 
+u8 rangedSelection=0; // the selected tile that the player is attacking
+u8 meleeSelection=0; // 0= left, 1= right
+
 // Gameplay
 enemy* tiles[7];
 enemy enemy1;
@@ -54,7 +57,7 @@ void makeItems() // create all the items in the game and store them in allItems 
 
   // ranged items (48-63)
   allItems[48] = (item){.type = 0, .message = "Fire Bomb\n3 Ranged Dmg", .useType = 3, .useAmount = 3, .useArea = 2, .staminaCost = 1, .bitmap = firebomb_Map};
-  allItems[49] = (item){.type = 1, .message = "Bow\n2 Ranged Dmg", .useType = 3, .useAmount = 1, .useArea = 2, .staminaCost = 2, .bitmap = bow_Map};  
+  allItems[49] = (item){.type = 1, .message = "Bow\n2 Ranged Dmg", .useType = 3, .useAmount = 1, .useArea = 1, .staminaCost = 2, .bitmap = bow_Map};  
 
   // defense items (64-79)
   allItems[64] = (item){.type = 1, .message = "Shield\n+2 Defense", .useType = 4, .useAmount = 2, .useArea = 0, .staminaCost = 1, .bitmap = shield_Map};
@@ -245,71 +248,130 @@ void displaySelector()
   }
 }
 
+void displayRangedSelector()
+{
+  for (char i = rangedSelection; i<7 && i<rangedSelection+inventory[selected]->useArea; i++)
+  {
+    drawImage(8,8, tileXs[i] + 3, 53, arrowUp_Map, 0,0);
+  }
+}
+
+void displayMeleeSelector()
+{
+  if (meleeSelection == 0) // Attacking Left
+  {
+    int pLoc = (int)playerLocation;
+    int uArea = (int)inventory[selected]->useArea;
+    int minTile = pLoc - uArea;
+    if (minTile < 0) minTile = 0;
+
+    for (int i = pLoc - 1; i >= minTile; i--)
+    {
+      drawImage(8, 8, tileXs[i] + 3, 53, arrowUp_Map, 0, 0);
+    }
+  }
+  else // Attacking Right
+  {
+    int pLoc = (int)playerLocation;
+    int uArea = (int)inventory[selected]->useArea;
+    int maxTile = pLoc + uArea;
+    
+    if (maxTile > 6) maxTile = 6;
+
+    for (int i = pLoc + 1; i <= maxTile; i++)
+    {
+      drawImage(8, 8, tileXs[i] + 3, 53, arrowUp_Map, 0, 0);
+    }
+  }
+}
+
 void endTurn()
 {
+  // add function here for handling enemy attacks
   currText = "Waiting...";
+  fightState=0;
   timeout_timer = 15;
 }
 
 void useHealItem()
 {
-  if (playerStamina > inventory[selected]->staminaCost)
-  {
-    playerHealth += inventory[selected]->useAmount;
-    if (playerHealth >= maxPlayerHealth) {playerHealth=maxPlayerHealth;}
-    playerStamina -= inventory[selected]->staminaCost;
-    if (inventory[selected]->type==0) {inventory[selected]=0;}
-    endTurn();
-  }
-  else
-  {
-    currText = "Not Enough Stamina!";
-    timeout_timer=20;
-  }
+  playerHealth += inventory[selected]->useAmount;
+  if (playerHealth >= maxPlayerHealth) {playerHealth=maxPlayerHealth;}
+  playerStamina -= inventory[selected]->staminaCost;
+  if (inventory[selected]->type==0) {inventory[selected]=0;}
+  endTurn();
 }
 
 void useBoostItem()
 {
-  if (playerStamina > inventory[selected]->staminaCost)
-  {
-    damageBoost += inventory[selected]->useAmount;
-    if (playerHealth >= maxPlayerHealth) {playerHealth=maxPlayerHealth;}
-    playerStamina -= inventory[selected]->staminaCost;
-    if (inventory[selected]->type==0) {inventory[selected]=0;}
-    endTurn();
-  }
-  else
-  {
-    currText = "Not Enough Stamina!";
-    timeout_timer=20;
-  }
+  damageBoost += inventory[selected]->useAmount;
+  playerStamina -= inventory[selected]->staminaCost;
+  if (inventory[selected]->type==0) {inventory[selected]=0;}
+  endTurn();
 }
 
-void usedRangedItem()
+void useRangedItem()
 {
-
+  for (u8 i = rangedSelection; i<7 && i<rangedSelection+inventory[selected]->useArea; i++)
+  {
+    if (tiles[i]!=0)
+    {
+      tiles[i]->health-=inventory[selected]->useAmount;
+      if (tiles[i]->health<=0) {tiles[i]=0;}// kill enemy if dead
+    }
+  }
+  playerStamina -= inventory[selected]->staminaCost;
+  if (inventory[selected]->type==0) {inventory[selected]=0;}
+  endTurn();
 }
 
 void useMeleeItem()
 {
+  if (meleeSelection == 0) // Attacking Left
+  {
+    int pLoc = (int)playerLocation;
+    int uArea = (int)inventory[selected]->useArea;
+    int minTile = pLoc - uArea;
+    
+    if (minTile < 0) minTile = 0;
 
+    for (int i = pLoc - 1; i >= minTile; i--)
+    {
+      if (tiles[i] != 0)
+      {
+        tiles[i]->health -= inventory[selected]->useAmount;
+        if (tiles[i]->health <= 0) { tiles[i] = 0; }
+      }
+    }
+  }
+  else // Attacking Right
+  {
+    int pLoc = (int)playerLocation;
+    int uArea = (int)inventory[selected]->useArea;
+    int maxTile = pLoc + uArea;
+    
+    if (maxTile > 6) maxTile = 6;
+
+    for (int i = pLoc + 1; i <= maxTile; i++)
+    {
+      if (tiles[i] != 0)
+      {
+        tiles[i]->health -= inventory[selected]->useAmount;
+        if (tiles[i]->health <= 0) { tiles[i] = 0; }
+      }
+    }
+  }
+  playerStamina -= inventory[selected]->staminaCost;
+  if (inventory[selected]->type == 0) { inventory[selected] = 0; }
+  endTurn();
 }
 
 void useDefenceItem()
 {
-  if (playerStamina > inventory[selected]->staminaCost)
-  {
-    defence += inventory[selected]->useAmount;
-    if (playerHealth >= maxPlayerHealth) {playerHealth=maxPlayerHealth;}
-    playerStamina -= inventory[selected]->staminaCost;
-    if (inventory[selected]->type==0) {inventory[selected]=0;}
-    endTurn();
-  }
-  else
-  {
-    currText = "Not Enough Stamina!";
-    timeout_timer=20;
-  }
+  defence = inventory[selected]->useAmount;
+  playerStamina -= inventory[selected]->staminaCost;
+  if (inventory[selected]->type==0) {inventory[selected]=0;}
+  endTurn();
 }
 
 
@@ -325,11 +387,24 @@ void inventoryControls()
     else if(KEY_B){fightState=1; selectorTimeout=selectorSpeed;} // switch to move selection
     else if (KEY_A && inventory[selected] != 0)
     {
-      if (inventory[selected]->useType == 0){useHealItem();}
-      else if (inventory[selected]->useType == 1){useBoostItem();}
-      else if (inventory[selected]->useType == 2){usedRangedItem();}
-      else if (inventory[selected]->useType == 3){useMeleeItem();}
-      else if (inventory[selected]->useType == 4){useDefenceItem();}
+      if (playerStamina > inventory[selected]->staminaCost)
+      {
+        if (inventory[selected]->useType == 0){useHealItem();}
+        else if (inventory[selected]->useType == 1){useBoostItem();}
+        else if (inventory[selected]->useType == 2){fightState=3;}
+        else if (inventory[selected]->useType == 3){fightState=2;}
+        else if (inventory[selected]->useType == 4){useDefenceItem();}
+        selectorTimeout=3;
+      }
+      else
+      {
+        currText = "Not Enough Stamina!";
+        timeout_timer=20;
+      }
+    }
+    else if(KEY_ST) // temporary reset button
+    {
+      init();
     }
   }
   else
@@ -437,6 +512,37 @@ void fight()
         currText = "Make a move...";
         fightControls();
       }
+      else if (fightState==2) // ranged attack selection
+      {
+        displayRangedSelector();
+        if (selectorTimeout <= 0)
+        {
+          if (KEY_A) {useRangedItem();selectorTimeout=2;} // use item
+          else if (KEY_B) {fightState=0;selectorTimeout=2;} // exit to inventory
+          else if (KEY_L && rangedSelection > 0) {rangedSelection-=1; selectorTimeout=2;}
+          else if (KEY_R && rangedSelection <= 6-inventory[selected]->useArea) {rangedSelection+=1; selectorTimeout=2;}
+        }
+        else
+        {
+          selectorTimeout--;
+        }
+      }
+      else if (fightState==3) // melee attack selection
+      {
+        displayMeleeSelector();
+        if (selectorTimeout <= 0)
+        {
+          if (KEY_A) {useMeleeItem();selectorTimeout=2;} // use item
+          else if (KEY_B) {fightState=0;selectorTimeout=2;} // exit to inventory
+          else if (KEY_L) {meleeSelection=0;selectorTimeout=2;}
+          else if (KEY_R) {meleeSelection=1;selectorTimeout=2;}
+        }
+        else
+        {
+          selectorTimeout--;
+        }
+      }
+
     }
     else
     {
