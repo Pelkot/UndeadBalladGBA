@@ -3,24 +3,9 @@
 #include "audioVideo.c"
 #include "gameplay.c"
 
-u16 frameCounter=1;//for frames per second / rng
 u8 gameState=1; // title screen=0, game=1, end screen=2
 u8 playState=2; // character creation=0, selecting level=1, fighting=2, shop/level up=3
 u16 endScreenTimer=0;
-
-void buttons()//buttons to press
-{
- if(KEY_R ){ }  //move right
- if(KEY_L ){ }  //move left
- if(KEY_U ){ }  //move up
- if(KEY_D ){ }  //move down
- if(KEY_A ){ } 
- if(KEY_B ){ } 
- if(KEY_LS){ } 
- if(KEY_RS){ } 
- if(KEY_ST){ } 
- if(KEY_SL){ } 
-}
 
 int main()
 {
@@ -30,7 +15,7 @@ int main()
   
  init();//init game variables
 
- while(1) 
+ while(1) // main loop
  { 
     while(*(volatile u16*)0x04000006 < 160);
 
@@ -67,7 +52,7 @@ int main()
       playSoundMusic(2,0); //play end song once
     }  	
     while(*(volatile u16*)0x04000006 < 160); 
-    frameCounter+=1;
-    if(frameCounter>1000){ frameCounter=1;}
+    randomCounter +=1;
+    if (randomCounter > 10000) {randomCounter=1;}
   }
 }

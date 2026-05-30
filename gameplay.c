@@ -2,6 +2,7 @@
 #include "textures.h"
 #include "structs.h"
 
+int randomCounter = 1;
 int timeout_timer = 0;
 u8 fightState = 0; //0= inventory, 1= selecting move, 2= selecting ranged, 3= selecting melee, 4= waiting/enemy turn
 
@@ -34,10 +35,8 @@ u8 meleeSelection=0; // 0= left, 1= right
 
 // Gameplay
 enemy* tiles[7];
-enemy enemy1;
-enemy enemy2;
-enemy enemy3;
-enemy enemy4;
+enemy enemies[6];
+u8 currEnemy = 0; // for looping through enemy attacks
 
 u8 playerLocation;
 u8 playerFacingLeft = 0;
@@ -47,20 +46,20 @@ int tileXs[7] = {21, 35, 49, 63, 77, 91, 105};
 void makeItems() // create all the items in the game and store them in allItems array for easy access when adding to inventory or shops
 {
   // heal items (1-15)
-  allItems[0] = (item){.type = 0, .message = "Health Potion\n+5 Health", .useType = 0, .useAmount = 5, .useArea = 0, .staminaCost = 1, .bitmap = healthPotion_Map};
+  allItems[0] = (item){.type = 0, .message = "Health Potion\n+5 Health", .useMessage = "Drank Health Potion!", .useType = 0, .useAmount = 5, .useArea = 0, .staminaCost = 1, .bitmap = healthPotion_Map};
 
   // boost items (16-31)
-  allItems[16] = (item){.type = 0, .message = "Fire Grease\n+2 Attack", .useType = 1, .useAmount = 2, .useArea = 0, .staminaCost = 1, .bitmap = fireGrease_Map};
+  allItems[16] = (item){.type = 0, .message = "Fire Grease\n+2 Attack", .useMessage = "Applied Fire Grease!", .useType = 1, .useAmount = 2, .useArea = 0, .staminaCost = 1, .bitmap = fireGrease_Map};
 
   // melee items (32-47)
-  allItems[32] = (item){.type = 1, .message = "Broad Sword\n2 Melee Dmg", .useType = 2, .useAmount = 2, .useArea = 2, .staminaCost = 2, .bitmap = broadSword_Map};
+  allItems[32] = (item){.type = 1, .message = "Broad Sword\n2 Melee Dmg", .useMessage="Swung Broad Sword!", .useType = 2, .useAmount = 2, .useArea = 2, .staminaCost = 2, .bitmap = broadSword_Map};
 
   // ranged items (48-63)
-  allItems[48] = (item){.type = 0, .message = "Fire Bomb\n3 Ranged Dmg", .useType = 3, .useAmount = 3, .useArea = 2, .staminaCost = 1, .bitmap = firebomb_Map};
-  allItems[49] = (item){.type = 1, .message = "Bow\n1 Ranged Dmg", .useType = 3, .useAmount = 1, .useArea = 1, .staminaCost = 2, .bitmap = bow_Map};  
+  allItems[48] = (item){.type = 0, .message = "Fire Bomb\n3 Ranged Dmg", .useMessage="Threw Fire Bomb!", .useType = 3, .useAmount = 3, .useArea = 2, .staminaCost = 1, .bitmap = firebomb_Map};
+  allItems[49] = (item){.type = 1, .message = "Bow\n1 Ranged Dmg", .useMessage="Shot Bow!", .useType = 3, .useAmount = 1, .useArea = 1, .staminaCost = 2, .bitmap = bow_Map};  
 
   // defense items (64-79)
-  allItems[64] = (item){.type = 1, .message = "Shield\n+2 Defense", .useType = 4, .useAmount = 2, .useArea = 0, .staminaCost = 1, .bitmap = shield_Map};
+  allItems[64] = (item){.type = 1, .message = "Shield\n+2 Defense", .useMessage="Raised Shield!", .useType = 4, .useAmount = 2, .useArea = 0, .staminaCost = 1, .bitmap = shield_Map};
 }
 
 
@@ -94,11 +93,11 @@ void init()
   {
     tiles[i] = 0;
   }
-  enemy1 = (enemy){.attack=2, .health=4, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=0};
-  tiles[0] = &enemy1;
+  enemies[0] = (enemy){.attack=2, .health=4, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=0, .nextMove=0};
+  tiles[0] = &enemies[0];
   
-  enemy2 = (enemy){.attack=2, .health=3, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=1};
-  tiles[6] = &enemy2;
+  enemies[1] = (enemy){.attack=2, .health=3, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=1, .nextMove=0};
+  tiles[6] = &enemies[1];
 }
 
 void drawHealthStamina()
@@ -287,8 +286,6 @@ void displayMeleeSelector()
 
 void endTurn()
 {
-  // add function here for handling enemy attacks
-  currText = "Waiting...";
   fightState=0;
   timeout_timer = 15;
 }
@@ -298,6 +295,7 @@ void useHealItem()
   playerHealth += inventory[selected]->useAmount;
   if (playerHealth >= maxPlayerHealth) {playerHealth=maxPlayerHealth;}
   playerStamina -= inventory[selected]->staminaCost;
+  currText = inventory[selected]->useMessage;
   if (inventory[selected]->type==0) {inventory[selected]=0;}
   endTurn();
 }
@@ -306,21 +304,25 @@ void useBoostItem()
 {
   damageBoost += inventory[selected]->useAmount;
   playerStamina -= inventory[selected]->staminaCost;
+  currText = inventory[selected]->useMessage;
   if (inventory[selected]->type==0) {inventory[selected]=0;}
   endTurn();
 }
 
 void useRangedItem()
 {
+  short damage = inventory[selected]->useAmount + damageBoost;
   for (u8 i = rangedSelection; i<7 && i<rangedSelection+inventory[selected]->useArea; i++)
   {
     if (tiles[i]!=0)
     {
-      tiles[i]->health-=inventory[selected]->useAmount;
+      tiles[i]->health-=damage;
       if (tiles[i]->health<=0) {tiles[i]=0;}// kill enemy if dead
     }
   }
   playerStamina -= inventory[selected]->staminaCost;
+  currText = inventory[selected]->useMessage;
+  damageBoost=0;
   if (inventory[selected]->type==0) {inventory[selected]=0;}
   endTurn();
 }
@@ -365,6 +367,7 @@ void useMeleeItem()
   }
   damageBoost = 0;
   playerStamina -= inventory[selected]->staminaCost;
+  currText = inventory[selected]->useMessage;
   if (inventory[selected]->type == 0) { inventory[selected] = 0; }
   endTurn();
 }
@@ -373,6 +376,7 @@ void useDefenceItem()
 {
   defence = inventory[selected]->useAmount;
   playerStamina -= inventory[selected]->staminaCost;
+  currText = inventory[selected]->useMessage;
   if (inventory[selected]->type==0) {inventory[selected]=0;}
   endTurn();
 }
@@ -516,6 +520,7 @@ void fight()
       else if (fightState==2) // ranged attack selection
       {
         displayRangedSelector();
+        currText="Select Ranged Attack...";
         if (selectorTimeout <= 0)
         {
           if (KEY_A) {useRangedItem();selectorTimeout=2;} // use item
@@ -530,11 +535,11 @@ void fight()
         {
           selectorTimeout--;
         }
-        currText="Select Ranged Attack...";
       }
       else if (fightState==3) // melee attack selection
       {
         displayMeleeSelector();
+        currText="Select Melee Attack...";
         if (selectorTimeout <= 0)
         {
           if (KEY_A) {useMeleeItem();selectorTimeout=2;} // use item
@@ -547,7 +552,6 @@ void fight()
         {
           selectorTimeout--;
         }
-        currText="Select Melee Attack...";
       }
 
     }

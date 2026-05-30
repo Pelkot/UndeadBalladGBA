@@ -9,6 +9,7 @@ typedef struct{
     unsigned char type; // 1=permanent, 0=consumable
 
     char* message;
+    char* useMessage;
 
     unsigned char useType; // 0=heal, 1=boost attack, 2=melee, 3=ranged, 4=defense
     unsigned char useAmount; // how much the item heals/hurts 
@@ -23,6 +24,7 @@ typedef struct {
     short maxHealth;
     short attack;
     short facingLeft;
+    char nextMove; // 0= no move, 1= move left, 2= move right, 3= attack left, 4= attack right
     
     unsigned const short* bitmap;
 } enemy;

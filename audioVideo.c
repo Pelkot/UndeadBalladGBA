@@ -1,7 +1,7 @@
 #include "gba.h"
 #include "textures.h"
 
-extern u16 frameCounter; //for frames per second / rng
+extern int randomCounter; //for frames per second / rng
 
 typedef struct
 {
@@ -117,7 +117,7 @@ void PlayNote( u16 frequency, unsigned char length ){
 
 void playSoundMusic(int s, int loop)
 {
- if((frameCounter % (M[s].spd))==0 && M[s].onOff==1) 
+ if((randomCounter % (M[s].spd))==0 && M[s].onOff==1) 
  {
   int note=M[s].song[M[s].tic];
   if(note>0){ PlayNote(notes[note],64);}
