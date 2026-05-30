@@ -287,7 +287,7 @@ void displayMeleeSelector()
 void endTurn()
 {
   fightState=0;
-  timeout_timer = 15;
+  timeout_timer = 20;
 }
 
 void useHealItem()
@@ -504,6 +504,8 @@ void fight()
         if (inventory[selected] != 0)
         {
           currText = inventory[selected]->message;
+          drawImage(8,8,108,72,staminaSymbol_Map,0,0);
+          drawImage(8,7,113,72,font_Map,15+inventory[selected]->staminaCost,0);
         }
         else
         {

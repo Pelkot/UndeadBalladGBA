@@ -23,6 +23,7 @@
 #include "textures/invSelector.c"
 #include "textures/barColors.c"
 #include "textures/arrowUp.c"
+#include "textures/staminaSymbol.c"
 
 #endif 
  
