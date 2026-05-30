@@ -25,6 +25,7 @@ typedef struct {
     short attack;
     short facingLeft;
     char nextMove; // 0= no move, 1= move left, 2= move right, 3= attack left, 4= attack right
+    char hasMoved; // tracks whether or not the current enemy has moved in this turn
     
     unsigned const short* bitmap;
 } enemy;

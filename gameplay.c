@@ -93,6 +93,7 @@ void init()
   {
     tiles[i] = 0;
   }
+  for (int i = 0; i<6; i++) {enemies[i].health=0;}
   enemies[0] = (enemy){.attack=2, .health=4, .maxHealth=5, .bitmap=skeleton_Map, .facingLeft=0, .nextMove=0};
   tiles[0] = &enemies[0];
   
@@ -381,6 +382,26 @@ void useDefenceItem()
   endTurn();
 }
 
+void moveEnemyLeft()
+{
+
+}
+
+void moveEnemyRight()
+{
+
+}
+
+void attackEnemyLeft()
+{
+
+}
+
+void attackEnemyRight()
+{
+  
+}
+
 void inventoryControls()
 {
   if (selectorTimeout <= 0)
@@ -555,7 +576,33 @@ void fight()
           selectorTimeout--;
         }
       }
+      else if (fightState == 4) // enemys turn
+      {
+        if (currEnemy <= 6)
+        {
+          //none/already moved enemy, skip/continue
+          if (tiles[currEnemy]!=0 && tiles[currEnemy]->hasMoved!=0) {currEnemy++;} 
+          else // perform enemies turn
+          {
+            char move = tiles[currEnemy]->nextMove;
+            if (move==1) {if(tiles[currEnemy-1]==0){tiles[currEnemy-1]=tiles[currEnemy]; tiles[currEnemy]=0;}}// move left
+            if (move==2) {if(tiles[currEnemy+1]==0){tiles[currEnemy+1]=tiles[currEnemy]; tiles[currEnemy]=0;}}// move right
+            if (move==3) {}
+            if (move==4) {}
+            tiles[currEnemy]->hasMoved=1; // mark them as already moved
+            tiles[currEnemy]->nextMove=0;// stop displaying their next move
+          }
+        }
+        else // all enemies done
+        {
+          for (int i = 0; i<7; i++) // set all enemies next turn
+          {
 
+          }
+          currEnemy = 0;
+          fightState = 0; // return player to inventory
+        }
+      }
     }
     else
     {
