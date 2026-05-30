@@ -57,7 +57,7 @@ void makeItems() // create all the items in the game and store them in allItems 
 
   // ranged items (48-63)
   allItems[48] = (item){.type = 0, .message = "Fire Bomb\n3 Ranged Dmg", .useType = 3, .useAmount = 3, .useArea = 2, .staminaCost = 1, .bitmap = firebomb_Map};
-  allItems[49] = (item){.type = 1, .message = "Bow\n2 Ranged Dmg", .useType = 3, .useAmount = 1, .useArea = 1, .staminaCost = 2, .bitmap = bow_Map};  
+  allItems[49] = (item){.type = 1, .message = "Bow\n1 Ranged Dmg", .useType = 3, .useAmount = 1, .useArea = 1, .staminaCost = 2, .bitmap = bow_Map};  
 
   // defense items (64-79)
   allItems[64] = (item){.type = 1, .message = "Shield\n+2 Defense", .useType = 4, .useAmount = 2, .useArea = 0, .staminaCost = 1, .bitmap = shield_Map};
@@ -327,6 +327,8 @@ void useRangedItem()
 
 void useMeleeItem()
 {
+  short damage = inventory[selected]->useAmount + damageBoost;
+
   if (meleeSelection == 0) // Attacking Left
   {
     int pLoc = (int)playerLocation;
@@ -339,7 +341,7 @@ void useMeleeItem()
     {
       if (tiles[i] != 0)
       {
-        tiles[i]->health -= inventory[selected]->useAmount;
+        tiles[i]->health -= damage;
         if (tiles[i]->health <= 0) { tiles[i] = 0; }
       }
     }
@@ -356,11 +358,12 @@ void useMeleeItem()
     {
       if (tiles[i] != 0)
       {
-        tiles[i]->health -= inventory[selected]->useAmount;
+        tiles[i]->health -= damage;
         if (tiles[i]->health <= 0) { tiles[i] = 0; }
       }
     }
   }
+  damageBoost = 0;
   playerStamina -= inventory[selected]->staminaCost;
   if (inventory[selected]->type == 0) { inventory[selected] = 0; }
   endTurn();
@@ -519,11 +522,15 @@ void fight()
           else if (KEY_B) {fightState=0;selectorTimeout=2;} // exit to inventory
           else if (KEY_L && rangedSelection > 0) {rangedSelection-=1; selectorTimeout=2;}
           else if (KEY_R && rangedSelection <= 6-inventory[selected]->useArea) {rangedSelection+=1; selectorTimeout=2;}
+          // flip player accordingly
+          if (rangedSelection < playerLocation) {playerFacingLeft=1;}
+          else {playerFacingLeft=0;}
         }
         else
         {
           selectorTimeout--;
         }
+        currText="Select Ranged Attack...";
       }
       else if (fightState==3) // melee attack selection
       {
@@ -534,11 +541,13 @@ void fight()
           else if (KEY_B) {fightState=0;selectorTimeout=2;} // exit to inventory
           else if (KEY_L) {meleeSelection=0;selectorTimeout=2;}
           else if (KEY_R) {meleeSelection=1;selectorTimeout=2;}
+          playerFacingLeft = !meleeSelection; // flip player accordingly
         }
         else
         {
           selectorTimeout--;
         }
+        currText="Select Melee Attack...";
       }
 
     }
